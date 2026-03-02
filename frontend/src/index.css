@@ -1,0 +1,9 @@
+/* Tailwind layers: base (resets), components, utilities */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Global body styles: light stone background, dark text, antialiased font */
+body {
+  @apply bg-stone-50 text-stone-900 antialiased;
+}
