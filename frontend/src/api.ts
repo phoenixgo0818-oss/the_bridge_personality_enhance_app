@@ -42,10 +42,11 @@ export const api = {
   updateProfile: (current_self: string, future_self: string) =>
     request<Profile>('/profile', { method: 'PUT', body: { current_self, future_self } }),
 
-  getTodayBrick: () => request<Brick | null>('/bricks/today'),
+  getTodayBricks: () => request<Brick[]>('/bricks/today'),
   createTodayBrick: (brick_text: string) =>
     request<Brick>('/bricks/today', { method: 'POST', body: { brick_text } }),
-  markTodayLaid: () => request<{ ok: boolean }>('/bricks/today/laid', { method: 'PATCH' }),
+  markBrickLaid: (brickId: number) =>
+    request<{ ok: boolean }>(`/bricks/${brickId}/laid`, { method: 'PATCH' }),
 
   getStreak: () => request<Streak>('/bricks/streak'),
   listBricks: (limit = 30) => request<Brick[]>(`/bricks?limit=${limit}`),

@@ -16,8 +16,8 @@ function todayString() {
  */
 function App() {
   const [profile, setProfile] = useState<Profile | null>(null)
-  // undefined = not loaded yet, null = no brick today, Brick = has brick
-  const [todayBrick, setTodayBrick] = useState<Brick | null | undefined>(undefined)
+  // undefined = not loaded yet, [] = no items today, Brick[] = today's action items
+  const [todayBricks, setTodayBricks] = useState<Brick[] | undefined>(undefined)
   const [streak, setStreak] = useState<number>(0)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -28,13 +28,13 @@ function App() {
   const load = async () => {
     setError(null)
     try {
-      const [p, brick, streakRes] = await Promise.all([
+      const [p, bricks, streakRes] = await Promise.all([
         api.getProfile(),
-        api.getTodayBrick(),
+        api.getTodayBricks(),
         api.getStreak(),
       ])
       setProfile(p)
-      setTodayBrick(brick ?? null)
+      setTodayBricks(bricks ?? [])
       setStreak(streakRes.streak_days)
       lastLoadedDateRef.current = todayString()
     } catch (e) {
@@ -74,15 +74,17 @@ function App() {
   /** Child calls this after saving profile; we sync local state. */
   const onProfileSaved = (p: Profile) => setProfile(p)
 
-  /** Child calls this after adding a brick; we update todayBrick and refresh streak. */
+  /** Child calls this after adding an action item; we append and refresh streak. */
   const onBrickCreated = (b: Brick) => {
-    setTodayBrick(b)
+    setTodayBricks((prev) => [...(prev ?? []), b])
     api.getStreak().then((r) => setStreak(r.streak_days))
   }
 
-  /** Child calls this after marking brick laid; we update UI and refresh streak. */
-  const onBrickLaid = () => {
-    setTodayBrick((prev) => (prev ? { ...prev, laid: true } : null))
+  /** Child calls this after marking a brick laid; we update that item and refresh streak. */
+  const onBrickLaid = (brickId: number) => {
+    setTodayBricks((prev) =>
+      (prev ?? []).map((b) => (b.id === brickId ? { ...b, laid: true } : b))
+    )
     api.getStreak().then((r) => setStreak(r.streak_days))
   }
 
@@ -121,7 +123,11 @@ function App() {
 
       <StreakCounter streak={streak} />
       <ProfileEditor initial={profile!} onSaved={onProfileSaved} />
-      <TodayBrick brick={todayBrick ?? null} onCreated={onBrickCreated} onLaid={onBrickLaid} />
+      <TodayBrick
+        bricks={todayBricks ?? []}
+        onCreated={onBrickCreated}
+        onLaid={onBrickLaid}
+      />
     </div>
   )
 }
