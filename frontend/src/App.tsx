@@ -48,17 +48,27 @@ function App() {
     load()
   }, [])
 
-  /** When user returns to the tab, if the calendar day changed (e.g. past midnight), refetch so today's brick and streak are correct. */
+  /** When user returns to the tab or window, if the calendar day changed (e.g. past midnight), refetch so today's brick and streak are correct. */
+  const refetchIfNewDay = () => {
+    const now = todayString()
+    if (lastLoadedDateRef.current !== null && lastLoadedDateRef.current !== now) {
+      load()
+    }
+  }
+
   useEffect(() => {
     const onVisibilityChange = () => {
       if (document.visibilityState !== 'visible') return
-      const now = todayString()
-      if (lastLoadedDateRef.current !== null && lastLoadedDateRef.current !== now) {
-        load()
-      }
+      refetchIfNewDay()
     }
+    const onFocus = () => refetchIfNewDay()
+
     document.addEventListener('visibilitychange', onVisibilityChange)
-    return () => document.removeEventListener('visibilitychange', onVisibilityChange)
+    window.addEventListener('focus', onFocus)
+    return () => {
+      document.removeEventListener('visibilitychange', onVisibilityChange)
+      window.removeEventListener('focus', onFocus)
+    }
   }, [])
 
   /** Child calls this after saving profile; we sync local state. */
