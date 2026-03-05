@@ -3,7 +3,8 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Global body styles: light stone background, dark text, antialiased font */
+/* Global body styles: dark background (rgb(30,33,39)), light text, antialiased font */
 body {
-  @apply bg-stone-50 text-stone-900 antialiased;
+  background-color: rgb(30, 33, 39);
+  @apply text-slate-100 antialiased;
 }

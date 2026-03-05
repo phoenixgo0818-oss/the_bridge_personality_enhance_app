@@ -115,10 +115,10 @@ function App() {
   }
 
   return (
-    <div className="min-h-screen max-w-xl mx-auto px-4 py-8">
+    <div className="min-h-screen max-w-2xl mx-auto px-4 py-10">
       <header className="mb-8">
-        <h1 className="text-2xl font-semibold text-stone-800">The Bridge</h1>
-        <p className="text-stone-500 text-sm mt-1">One brick at a time.</p>
+        <h1 className="text-3xl font-extrabold tracking-tight text-white">Bridge</h1>
+        <p className="text-sm text-slate-400 mt-1">One brick at a time.</p>
       </header>
 
       <StreakCounter streak={streak} />
