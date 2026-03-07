@@ -92,7 +92,7 @@ export function ProfileEditor({ initial, onSaved }: Props) {
             type="button"
             onClick={handleSave}
             disabled={saving || !isDirty}
-            className="px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 disabled:opacity-50"
+            className="px-4 py-2 bg-indigo-500 text-white rounded-lg hover:bg-indigo-600 disabled:opacity-50"
           >
             {saving ? 'Saving…' : 'Save'}
           </button>

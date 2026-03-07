@@ -1,134 +1,21 @@
-import { useEffect, useRef, useState } from 'react'
-import { api, type Brick, type Profile } from './api'
-import { ProfileEditor } from './ProfileEditor'
-import { TodayBrick } from './TodayBrick'
-import { StreakCounter } from './StreakCounter'
-
-/** Today's date as YYYY-MM-DD (same as backend). */
-function todayString() {
-  return new Date().toISOString().slice(0, 10)
-}
+import { Routes, Route } from 'react-router-dom'
+import { Layout } from './Layout'
+import { LandingPage } from './LandingPage'
+import { Dashboard } from './pages/Dashboard'
 
 /**
- * Root component: loads data on mount, renders StreakCounter + ProfileEditor + TodayBrick.
- * Refetches when the user returns to the tab and the calendar day has changed (so
- * "today's brick" and streak stay correct after midnight).
+ * Root: URL-based routing.
+ * / = homepage (landing)
+ * /dailybricks = dashboard (profile, bricks, calendar)
  */
 function App() {
-  const [profile, setProfile] = useState<Profile | null>(null)
-  // undefined = not loaded yet, [] = no items today, Brick[] = today's action items
-  const [todayBricks, setTodayBricks] = useState<Brick[] | undefined>(undefined)
-  const [streak, setStreak] = useState<number>(0)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-  /** Date (YYYY-MM-DD) when we last loaded; used to detect new day and refetch. */
-  const lastLoadedDateRef = useRef<string | null>(null)
-
-  /** Fetch profile, today's brick, and streak in parallel. Called on mount, Retry, and when day changes. */
-  const load = async () => {
-    setError(null)
-    try {
-      const [p, bricks, streakRes] = await Promise.all([
-        api.getProfile(),
-        api.getTodayBricks(),
-        api.getStreak(),
-      ])
-      setProfile(p)
-      setTodayBricks(bricks ?? [])
-      setStreak(streakRes.streak_days)
-      lastLoadedDateRef.current = todayString()
-    } catch (e) {
-      setError(e instanceof Error ? e.message : 'Failed to load')
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  useEffect(() => {
-    load()
-  }, [])
-
-  /** When user returns to the tab or window, if the calendar day changed (e.g. past midnight), refetch so today's brick and streak are correct. */
-  const refetchIfNewDay = () => {
-    const now = todayString()
-    if (lastLoadedDateRef.current !== null && lastLoadedDateRef.current !== now) {
-      load()
-    }
-  }
-
-  useEffect(() => {
-    const onVisibilityChange = () => {
-      if (document.visibilityState !== 'visible') return
-      refetchIfNewDay()
-    }
-    const onFocus = () => refetchIfNewDay()
-
-    document.addEventListener('visibilitychange', onVisibilityChange)
-    window.addEventListener('focus', onFocus)
-    return () => {
-      document.removeEventListener('visibilitychange', onVisibilityChange)
-      window.removeEventListener('focus', onFocus)
-    }
-  }, [])
-
-  /** Child calls this after saving profile; we sync local state. */
-  const onProfileSaved = (p: Profile) => setProfile(p)
-
-  /** Child calls this after adding an action item; we append and refresh streak. */
-  const onBrickCreated = (b: Brick) => {
-    setTodayBricks((prev) => [...(prev ?? []), b])
-    api.getStreak().then((r) => setStreak(r.streak_days))
-  }
-
-  /** Child calls this after marking a brick laid; we update that item and refresh streak. */
-  const onBrickLaid = (brickId: number) => {
-    setTodayBricks((prev) =>
-      (prev ?? []).map((b) => (b.id === brickId ? { ...b, laid: true } : b))
-    )
-    api.getStreak().then((r) => setStreak(r.streak_days))
-  }
-
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <p className="text-stone-500">Loading…</p>
-      </div>
-    )
-  }
-
-  if (error) {
-    return (
-      <div className="min-h-screen flex items-center justify-center p-4">
-        <div className="text-center">
-          <p className="text-red-600 mb-2">{error}</p>
-          <p className="text-sm text-stone-500 mb-4">Is the backend running at http://localhost:8000?</p>
-          <button
-            type="button"
-            onClick={load}
-            className="px-4 py-2 bg-stone-700 text-white rounded-lg hover:bg-stone-800"
-          >
-            Retry
-          </button>
-        </div>
-      </div>
-    )
-  }
-
   return (
-    <div className="min-h-screen max-w-2xl mx-auto px-4 py-10">
-      <header className="mb-8">
-        <h1 className="text-3xl font-extrabold tracking-tight text-white">Bridge</h1>
-        <p className="text-sm text-slate-400 mt-1">One brick at a time.</p>
-      </header>
-
-      <StreakCounter streak={streak} />
-      <ProfileEditor initial={profile!} onSaved={onProfileSaved} />
-      <TodayBrick
-        bricks={todayBricks ?? []}
-        onCreated={onBrickCreated}
-        onLaid={onBrickLaid}
-      />
-    </div>
+    <Routes>
+      <Route path="/" element={<Layout />}>
+        <Route index element={<LandingPage />} />
+        <Route path="dailybricks" element={<Dashboard />} />
+      </Route>
+    </Routes>
   )
 }
 

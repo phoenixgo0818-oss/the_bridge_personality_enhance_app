@@ -8,3 +8,8 @@ body {
   background-color: rgb(30, 33, 39);
   @apply text-slate-100 antialiased;
 }
+
+/* Stylish font for Bridge header */
+.font-bridge {
+  font-family: 'Cormorant Garamond', serif;
+}
