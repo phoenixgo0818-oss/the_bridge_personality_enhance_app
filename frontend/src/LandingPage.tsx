@@ -29,20 +29,30 @@ export function LandingPage() {
 
   return (
     <div className="min-h-screen w-full bg-gradient-to-br from-indigo-500 via-blue-500 to-cyan-500">
-      {/* Header: ~2x taller for branding + app description + tips */}
-      <header className="flex h-[200px] w-full flex-col justify-center border-b border-white/80 px-6 py-6 md:h-[240px] md:px-10">
-        <div className="flex items-center gap-4">
-          <img src="/favicon.svg" alt="" className="h-12 w-12 shrink-0 md:h-14 md:w-14" />
-          <h1
-            className="text-3xl font-medium text-white md:text-4xl"
-            style={{ fontFamily: "'Caveat', cursive" }}
+      {/* Header: logo + copy filling the space */}
+      <header className="flex h-[200px] w-full items-start justify-between gap-6 border-b border-white/80 px-6 py-5 md:h-[240px] md:gap-8 md:px-10 md:py-6">
+        <img
+          src="/logo.png"
+          alt="UpHuman"
+          className="-mt-1 h-[calc(100%-1.5rem)] w-auto shrink-0 object-contain md:-mt-0.5 md:h-[calc(100%-2rem)]"
+        />
+        <div className="flex min-w-0 flex-1 flex-col justify-center gap-2 md:gap-3">
+          <p className="text-lg font-medium leading-snug text-white/95 md:text-xl lg:text-2xl">
+            Are you feeling stuck, unmotivated, or overwhelmed?
+          </p>
+          <p className="text-xl font-semibold leading-snug text-white md:text-2xl lg:text-3xl">
+            Build yourself one brick at a time with Uphuman.
+          </p>
+          <p className="text-base leading-relaxed text-white/90 md:text-lg lg:text-xl">
+            Lay daily bricks of growth, track them throughout the day, and watch yourself become stronger.
+          </p>
+          <Link
+            to="/dailybricks"
+            className="mt-1 w-fit rounded-xl bg-white px-6 py-3 text-base font-semibold text-indigo-600 shadow-lg transition-all hover:bg-white/95 hover:shadow-xl active:scale-[0.98] md:mt-2 md:px-8 md:py-3.5 md:text-lg"
           >
-            ᑌᑭᕼᑌᗰᗩᑎ
-          </h1>
+            Start Laying Your First Brick
+          </Link>
         </div>
-        <p className="mt-3 max-w-xl text-sm text-white/90 md:text-base">
-          Build the gap between who you are and who you want to become. One brick at a time.
-        </p>
       </header>
 
       {/* Main content */}
@@ -88,12 +98,12 @@ export function LandingPage() {
           </div>
 
           <div className="flex w-full flex-col items-center gap-4 md:items-start">
-            <p className="text-center text-slate-400 md:text-left">One brick at a time.</p>
+            <p className="text-center text-white/70 md:text-left">One brick at a time.</p>
             <Link
               to="/dailybricks"
               className="w-full rounded-xl bg-indigo-500 px-8 py-4 text-center font-medium text-white shadow-lg transition-all hover:bg-indigo-600 hover:shadow-indigo-500/25 active:scale-[0.98] md:w-auto"
             >
-              Enter
+              Start Laying Your First Brick
             </Link>
           </div>
         </div>
