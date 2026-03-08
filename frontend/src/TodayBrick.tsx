@@ -48,7 +48,7 @@ export function TodayBrick({ bricks, onCreated, onLaid }: Props) {
 
   return (
     <section>
-      <h2 className="text-lg font-semibold text-slate-100 mb-3">Today&apos;s action items</h2>
+      <h2 className="text-lg font-semibold text-white/95 mb-3">Today&apos;s action items</h2>
 
       {/* List of today's bricks */}
       {bricks.length > 0 && (
@@ -56,17 +56,17 @@ export function TodayBrick({ bricks, onCreated, onLaid }: Props) {
           {bricks.map((b) => (
             <li
               key={b.id}
-              className="rounded-lg border border-white/10 bg-slate-900/80 p-4 shadow-sm"
+              className="rounded-2xl border border-white/10 bg-white/5 p-4 backdrop-blur-md"
             >
               <p className="text-slate-100">{b.brick_text}</p>
               {b.laid ? (
-                <p className="mt-2 text-sm text-emerald-400 font-medium">✓ Laid</p>
+                <p className="mt-2 text-sm text-emerald-300 font-medium">✓ Laid</p>
               ) : (
                 <button
                   type="button"
                   onClick={() => handleMarkLaid(b.id)}
                   disabled={layingId !== null}
-                  className="mt-3 px-4 py-2 bg-indigo-500 text-white rounded-lg hover:bg-indigo-600 disabled:opacity-50 text-sm"
+                  className="mt-3 rounded-xl bg-indigo-500 px-4 py-2 text-sm text-white hover:bg-indigo-600 disabled:opacity-50"
                 >
                   {layingId === b.id ? '…' : 'Mark as laid'}
                 </button>
@@ -77,27 +77,27 @@ export function TodayBrick({ bricks, onCreated, onLaid }: Props) {
       )}
 
       {/* Add new action item */}
-      <div className="space-y-2">
+      <div className="space-y-2 rounded-2xl border border-white/10 bg-white/5 p-4 backdrop-blur-md">
         <input
           type="text"
           value={text}
           onChange={(e) => setText(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && handleAdd()}
           placeholder="One small action for today…"
-          className="w-full rounded-lg border border-white/40 bg-[rgba(30,33,39,0.85)] backdrop-blur-sm px-3 py-2 text-slate-200 placeholder-slate-500 focus:border-indigo-400 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+          className="w-full rounded-xl border border-white/20 bg-white/5 px-3 py-2 text-slate-100 placeholder-white/40 backdrop-blur-sm focus:border-indigo-400 focus:outline-none focus:ring-1 focus:ring-indigo-500"
         />
         <button
           type="button"
           onClick={handleAdd}
           disabled={submitting || !text.trim()}
-          className="px-4 py-2 bg-indigo-500 text-white rounded-lg hover:bg-indigo-600 disabled:opacity-50"
+          className="rounded-xl bg-indigo-500 px-5 py-2 text-white hover:bg-indigo-600 disabled:opacity-50"
         >
           {submitting ? 'Adding…' : 'Add action item'}
         </button>
       </div>
 
       {error && (
-        <p className="mt-2 text-sm text-red-600">{error}</p>
+        <p className="mt-2 text-sm text-red-300">{error}</p>
       )}
     </section>
   )

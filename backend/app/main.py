@@ -10,7 +10,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.database import init_db
-from app.routers import bricks, profile
+from app.routers import bricks, profile, quotes
 
 
 @asynccontextmanager
@@ -39,9 +39,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Mount routers: profile endpoints under /profile, brick endpoints under /bricks
+# Mount routers: profile under /profile, bricks under /bricks, quotes under /quotes
 app.include_router(profile.router)
 app.include_router(bricks.router)
+app.include_router(quotes.router)
 
 
 @app.get("/")

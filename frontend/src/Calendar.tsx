@@ -1,6 +1,6 @@
 /**
- * Calendar for current month. Days with at least one brick are colored (indigo);
- * days with no brick are blank/subtle.
+ * Calendar for current month. Days with at least one brick are highlighted;
+ * days with no brick are subtle. Glass styling to match landing theme.
  */
 type Props = {
   /** Set of dates (YYYY-MM-DD) that have at least one brick */
@@ -30,13 +30,13 @@ export function Calendar({ datesWithBricks }: Props) {
   const todayDate = now.getDate()
 
   return (
-    <section className="w-full max-w-[320px]">
-      <h2 className="text-lg font-semibold text-slate-100 mb-3">{monthName}</h2>
+    <section className="w-full max-w-[320px] rounded-2xl border border-white/10 bg-white/5 p-4 backdrop-blur-md">
+      <h2 className="text-lg font-semibold text-white/95 mb-3">{monthName}</h2>
       <div className="grid w-full grid-cols-7 gap-1">
         {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day) => (
           <div
             key={day}
-            className="py-1 text-center text-xs font-medium text-slate-500"
+            className="py-1 text-center text-xs font-medium text-white/60"
           >
             {day}
           </div>
@@ -53,8 +53,8 @@ export function Calendar({ datesWithBricks }: Props) {
             <div
               key={dateStr}
               className={`flex aspect-square items-center justify-center rounded-lg text-sm
-                ${hasBrick ? 'bg-indigo-500 text-white font-medium' : 'text-slate-500'}
-                ${isToday && !hasBrick ? 'ring-1 ring-white/30' : ''}
+                ${hasBrick ? 'bg-white/25 text-white font-medium' : 'text-white/60'}
+                ${isToday && !hasBrick ? 'ring-1 ring-white/40' : ''}
                 ${isToday && hasBrick ? 'ring-2 ring-white' : ''}`}
             >
               {day}

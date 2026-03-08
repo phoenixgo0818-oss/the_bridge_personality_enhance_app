@@ -36,6 +36,7 @@ async function request<T>(
 export type Profile = { current_self: string; future_self: string };
 export type Brick = { id: number; date: string; brick_text: string; laid: boolean };
 export type Streak = { streak_days: number };
+export type Quote = { quote_text: string; individual: string; nation: string };
 
 export const api = {
   getProfile: () => request<Profile>('/profile'),
@@ -50,4 +51,6 @@ export const api = {
 
   getStreak: () => request<Streak>('/bricks/streak'),
   listBricks: (limit = 30) => request<Brick[]>(`/bricks?limit=${limit}`),
+
+  getQuotes: () => request<Quote[]>('/quotes'),
 }

@@ -53,6 +53,14 @@ def init_db():
 
             CREATE TABLE IF NOT EXISTS schema_version (version INTEGER NOT NULL);
             INSERT OR IGNORE INTO schema_version VALUES (1);
+
+            -- Golden sayings (quotes) for landing page
+            CREATE TABLE IF NOT EXISTS quotes (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                quote_text TEXT NOT NULL,
+                individual TEXT NOT NULL,
+                nation TEXT NOT NULL
+            );
         """)
         conn.commit()
 
@@ -74,6 +82,19 @@ def init_db():
                 ALTER TABLE bricks_new RENAME TO bricks;
                 UPDATE schema_version SET version = 2;
             """)
+            conn.commit()
+
+        # Migration: seed quotes (run once when version < 3)
+        row = conn.execute("SELECT version FROM schema_version").fetchone()
+        version = row[0] if row else 0
+        if version < 3:
+            from app.seed_quotes import QUOTES
+            for q_text, q_individual, q_nation in QUOTES:
+                conn.execute(
+                    "INSERT INTO quotes (quote_text, individual, nation) VALUES (?, ?, ?)",
+                    (q_text, q_individual, q_nation),
+                )
+            conn.execute("UPDATE schema_version SET version = 3")
             conn.commit()
     finally:
         conn.close()

@@ -87,7 +87,7 @@ export function Dashboard() {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-20">
-        <p className="text-slate-500">Loading…</p>
+        <p className="text-white/70">Loading…</p>
       </div>
     )
   }
@@ -95,13 +95,13 @@ export function Dashboard() {
   if (error) {
     return (
       <div className="flex items-center justify-center p-4 py-20">
-        <div className="text-center">
-          <p className="text-red-400 mb-2">{error}</p>
-          <p className="text-sm text-slate-500 mb-4">Is the backend running at http://localhost:8000?</p>
+        <div className="rounded-2xl border border-white/10 bg-white/5 p-8 text-center backdrop-blur-md">
+          <p className="text-red-300 mb-2">{error}</p>
+          <p className="text-sm text-white/60 mb-4">Is the backend running at http://localhost:8000?</p>
           <button
             type="button"
             onClick={load}
-            className="px-4 py-2 bg-indigo-500 text-white rounded-lg hover:bg-indigo-600"
+            className="rounded-xl bg-indigo-500 px-6 py-2.5 text-white hover:bg-indigo-600"
           >
             Retry
           </button>
@@ -114,7 +114,7 @@ export function Dashboard() {
     <div className="mx-auto w-full max-w-2xl px-4 py-8 lg:max-w-5xl">
       <header className="mb-8">
         <h1 className="font-bridge text-4xl font-semibold tracking-tight text-white">Bridge</h1>
-        <p className="text-sm text-slate-400 mt-1">One brick at a time.</p>
+        <p className="text-sm text-white/70 mt-1">One brick at a time.</p>
       </header>
 
       <StreakCounter streak={streak} />

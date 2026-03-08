@@ -3,13 +3,19 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Global body styles: dark background (rgb(30,33,39)), light text, antialiased font */
+/* Global body styles: gradient (same as Safe & comfortable hover state), light text, antialiased font */
 body {
-  background-color: rgb(30, 33, 39);
+  background: linear-gradient(to bottom right, rgb(99 102 241), rgb(59 130 246), rgb(6 182 212));
+  min-height: 100vh;
   @apply text-slate-100 antialiased;
 }
 
 /* Stylish font for Bridge header */
 .font-bridge {
   font-family: 'Cormorant Garamond', serif;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
