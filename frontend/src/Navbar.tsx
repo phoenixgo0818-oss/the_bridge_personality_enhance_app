@@ -10,7 +10,7 @@ type Props = {
 export function Navbar({ currentView }: Props) {
   return (
     <div className="px-4 pt-4">
-      <nav className="sticky top-4 z-10 rounded-lg border border-white/10 bg-gradient-to-br from-slate-600/80 to-slate-800/80 backdrop-blur-sm">
+      <nav className="navbar-glow sticky top-4 z-10 rounded-lg border border-white/10 bg-gradient-to-br from-slate-600/80 to-slate-800/80 backdrop-blur-sm">
         <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-2 px-4 py-3 sm:gap-1">
           <div className="flex flex-wrap items-center gap-1 text-slate-300">
             <Link

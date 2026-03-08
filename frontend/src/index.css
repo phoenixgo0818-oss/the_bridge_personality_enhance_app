@@ -3,9 +3,18 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Global body styles: gradient (same as Safe & comfortable hover state), light text, antialiased font */
+/* Global body: slightly dark blue gradient (daily bricks page) */
 body {
-  background: linear-gradient(to bottom right, rgb(99 102 241), rgb(59 130 246), rgb(6 182 212));
+  background: linear-gradient(
+    145deg,
+    rgb(49 46 129) 0%,
+    rgb(55 48 163) 18%,
+    rgb(30 58 138) 38%,
+    rgb(21 94 117) 58%,
+    rgb(22 78 99) 75%,
+    rgb(30 58 138) 90%,
+    rgb(49 46 129) 100%
+  );
   min-height: 100vh;
   @apply text-slate-100 antialiased;
 }
@@ -18,4 +27,34 @@ body {
 @keyframes fadeIn {
   from { opacity: 0; }
   to { opacity: 1; }
+}
+
+/* Navbar subtle glow pulse */
+@keyframes navbarGlow {
+  0%, 100% { box-shadow: 0 0 20px rgba(99, 102, 241, 0.35); }
+  50% { box-shadow: 0 0 32px rgba(99, 102, 241, 0.55); }
+}
+.navbar-glow {
+  animation: navbarGlow 3s ease-in-out infinite;
+}
+
+/* Mindset cards: float left to right (strip moves right so cards appear to go L→R) */
+@keyframes mindsetFloat {
+  0% { transform: translateX(-50%); }
+  100% { transform: translateX(0); }
+}
+.mindset-strip {
+  animation: mindsetFloat 90s linear infinite;
+}
+.mindset-strip.paused {
+  animation-play-state: paused;
+}
+
+/* Header typewriter cursor */
+@keyframes caretBlink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
+}
+.header-caret {
+  animation: caretBlink 0.8s step-end infinite;
 }
