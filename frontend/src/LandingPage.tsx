@@ -1,5 +1,6 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
+import { api, type Quote } from './api'
 
 const MINDSET_PAIRS: { negative: { emoji: string; text: string }; positive: { emoji: string; text: string } }[] = [
   { negative: { emoji: '😰', text: 'I am afraid to try.' }, positive: { emoji: '🦁', text: 'I am brave enough to start.' } },
@@ -116,6 +117,10 @@ export function LandingPage() {
   }, [phase])
 
   const stripCards = [...MINDSET_PAIRS, ...MINDSET_PAIRS]
+  const [quotes, setQuotes] = useState<Quote[]>([])
+  useEffect(() => {
+    api.getQuotes().then(setQuotes).catch(() => {})
+  }, [])
 
   const darkGradient =
     'linear-gradient(145deg, rgb(49 46 129) 0%, rgb(55 48 163) 18%, rgb(30 58 138) 38%, rgb(21 94 117) 58%, rgb(22 78 99) 75%, rgb(30 58 138) 90%, rgb(49 46 129) 100%)'
@@ -173,6 +178,183 @@ export function LandingPage() {
           ))}
         </div>
       </main>
+
+      {/* Golden sayings: R→L strip, 2x height 1.5x width, slide fast every 10s, center clear / rest blurred */}
+      {quotes.length > 0 && (
+        <GoldenSayingsStrip quotes={quotes} />
+      )}
     </div>
+  )
+}
+
+/** Golden sayings strip: right-to-left, larger boxes, slide fast every 10s, center sharp / rest blurred. */
+function GoldenSayingsStrip({ quotes }: { quotes: Quote[] }) {
+  const SLIDE_DURATION_MS = 500
+  const INTERVAL_MS = 10_000
+
+  const stripQuotes = [...quotes, ...quotes, ...quotes]
+  const containerRef = useRef<HTMLDivElement>(null)
+  const cardRefs = useRef<(HTMLDivElement | null)[]>([])
+  const [translateX, setTranslateX] = useState(0)
+  const [centerIndex, setCenterIndex] = useState(0)
+  const [step, setStep] = useState<number | null>(null)
+
+  // Keep track of which card is visually in the center of the container,
+  // and measure the horizontal step between cards from the real DOM so
+  // each slide lands exactly one card over, even when widths change.
+  useEffect(() => {
+    const el = containerRef.current
+    if (!el) return
+
+    const updateCenterAndStep = () => {
+      const rect = el.getBoundingClientRect()
+      const viewportCenter = rect.left + rect.width / 2
+
+      let bestI = 0
+      let bestDist = Infinity
+
+      for (let i = 0; i < stripQuotes.length; i++) {
+        const card = cardRefs.current[i]
+        if (!card) continue
+        const r = card.getBoundingClientRect()
+        const cardCenter = r.left + r.width / 2
+        const d = Math.abs(cardCenter - viewportCenter)
+        if (d < bestDist) {
+          bestDist = d
+          bestI = i
+        }
+      }
+
+      setCenterIndex(bestI)
+
+      // Measure step as distance between first two cards (includes gap),
+      // so motion uses the exact spacing at the current breakpoint.
+      const first = cardRefs.current[0]
+      const second = cardRefs.current[1]
+      if (first && second) {
+        const r0 = first.getBoundingClientRect()
+        const r1 = second.getBoundingClientRect()
+        const measured = r1.left - r0.left
+        if (measured > 0) {
+          setStep((prev) =>
+            prev === null || Math.abs(prev - measured) > 1 ? measured : prev,
+          )
+        }
+      }
+    }
+
+    updateCenterAndStep()
+
+    const ro = new ResizeObserver(updateCenterAndStep)
+    const mo = new MutationObserver(updateCenterAndStep)
+    ro.observe(el)
+    mo.observe(el, { attributes: true, subtree: true, attributeFilter: ['style'] })
+
+    const t = setInterval(updateCenterAndStep, 100)
+
+    return () => {
+      ro.disconnect()
+      mo.disconnect()
+      clearInterval(t)
+    }
+  }, [translateX, stripQuotes.length])
+
+  // Slide one card every INTERVAL_MS, using the live step measurement,
+  // then snap so the chosen card is exactly centered (no small lean left/right).
+  useEffect(() => {
+    if (step == null) return
+
+    const slideOnce = () => {
+      // Move roughly one card.
+      setTranslateX((prev) => prev - step)
+
+      // After the slide animation finishes, fine-tune so the center card
+      // is perfectly aligned with the container center.
+      setTimeout(() => {
+        const el = containerRef.current
+        if (!el) return
+
+        const rect = el.getBoundingClientRect()
+        const viewportCenter = rect.left + rect.width / 2
+
+        let bestCard: HTMLDivElement | null = null
+        let bestDist = Infinity
+
+        for (let i = 0; i < stripQuotes.length; i++) {
+          const card = cardRefs.current[i]
+          if (!card) continue
+          const r = card.getBoundingClientRect()
+          const cardCenter = r.left + r.width / 2
+          const d = Math.abs(cardCenter - viewportCenter)
+          if (d < bestDist) {
+            bestDist = d
+            bestCard = card
+          }
+        }
+
+        if (!bestCard) return
+
+        const bestRect = bestCard.getBoundingClientRect()
+        const bestCenter = bestRect.left + bestRect.width / 2
+        const delta = bestCenter - viewportCenter
+
+        // If the center is off by more than ~1px, correct it.
+        if (Math.abs(delta) > 1) {
+          setTranslateX((prev) => prev - delta)
+        }
+      }, SLIDE_DURATION_MS)
+    }
+
+    const id = setInterval(slideOnce, INTERVAL_MS)
+    return () => clearInterval(id)
+  }, [step, stripQuotes.length])
+
+  // Loop seamlessly when we've moved one full cycle worth of cards.
+  useEffect(() => {
+    if (step == null) return
+    const cycleLen = quotes.length * step
+    if (translateX < -cycleLen) {
+      setTranslateX((prev) => prev + cycleLen)
+    }
+  }, [translateX, step, quotes.length])
+
+  const clampedCenter = Math.max(0, Math.min(centerIndex, stripQuotes.length - 1))
+
+  return (
+    <section className="w-full overflow-hidden py-6 md:py-8">
+      <h2 className="mb-4 text-center text-xl font-semibold text-white/95 md:mb-5 md:text-2xl">
+        Golden Sayings
+      </h2>
+      <div ref={containerRef} className="relative w-full overflow-hidden">
+        <div
+          className="flex gap-4 px-4"
+          style={{
+            width: 'max-content',
+            transform: `translateX(${translateX}px)`,
+            transition: `transform ${SLIDE_DURATION_MS}ms ease-out`,
+          }}
+        >
+          {stripQuotes.map((q, i) => (
+            <div
+              key={`${i}-${q.quote_text.slice(0, 30)}`}
+              ref={(el) => {
+                cardRefs.current[i] = el
+              }}
+              className={`flex h-[240px] w-[390px] shrink-0 flex-col justify-center gap-2 rounded-2xl border border-white/20 bg-white/10 px-6 py-4 backdrop-blur-md md:h-[260px] md:w-[420px] transition-all duration-300 ${
+                i === clampedCenter ? 'blur-0' : 'blur-md'
+              }`}
+            >
+              <p className="text-center text-base font-medium leading-relaxed text-white/95 md:text-lg">
+                &ldquo;{q.quote_text}&rdquo;
+              </p>
+              <p className="text-center text-sm text-amber-400/90 md:text-base">
+                — {q.individual}
+                {q.nation ? `, ${q.nation}` : ''}
+              </p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
   )
 }

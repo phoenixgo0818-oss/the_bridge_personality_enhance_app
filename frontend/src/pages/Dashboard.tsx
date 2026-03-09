@@ -10,6 +10,23 @@ function todayString() {
   return new Date().toISOString().slice(0, 10)
 }
 
+/** Dates (YYYY-MM-DD) where all bricks for that day are laid. */
+function computeDatesWithAllBricksLaid(bricks: Brick[]): Set<string> {
+  const byDate = new Map<string, Brick[]>()
+  for (const b of bricks) {
+    const list = byDate.get(b.date) ?? []
+    list.push(b)
+    byDate.set(b.date, list)
+  }
+  const result = new Set<string>()
+  for (const [date, list] of byDate) {
+    if (list.length > 0 && list.every((b) => b.laid)) {
+      result.add(date)
+    }
+  }
+  return result
+}
+
 /**
  * Daily bricks page: profile, today's action items, calendar, streak.
  * Route: /dailybricks
@@ -18,7 +35,7 @@ export function Dashboard() {
   const [profile, setProfile] = useState<Profile | null>(null)
   const [todayBricks, setTodayBricks] = useState<Brick[] | undefined>(undefined)
   const [streak, setStreak] = useState<number>(0)
-  const [datesWithBricks, setDatesWithBricks] = useState<Set<string>>(new Set())
+  const [datesWithAllBricksLaid, setDatesWithAllBricksLaid] = useState<Set<string>>(new Set())
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const lastLoadedDateRef = useRef<string | null>(null)
@@ -35,7 +52,7 @@ export function Dashboard() {
       setProfile(p)
       setTodayBricks(bricks ?? [])
       setStreak(streakRes.streak_days)
-      setDatesWithBricks(new Set(brickList.map((b) => b.date)))
+      setDatesWithAllBricksLaid(computeDatesWithAllBricksLaid(brickList))
       lastLoadedDateRef.current = todayString()
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Failed to load')
@@ -73,14 +90,15 @@ export function Dashboard() {
 
   const onBrickCreated = (b: Brick) => {
     setTodayBricks((prev) => [...(prev ?? []), b])
-    setDatesWithBricks((prev) => new Set([...prev, b.date]))
     api.getStreak().then((r) => setStreak(r.streak_days))
   }
 
   const onBrickLaid = (brickId: number) => {
-    setTodayBricks((prev) =>
-      (prev ?? []).map((b) => (b.id === brickId ? { ...b, laid: true } : b))
-    )
+    const updated = (todayBricks ?? []).map((b) => (b.id === brickId ? { ...b, laid: true } : b))
+    setTodayBricks(updated)
+    if (updated.length > 0 && updated.every((b) => b.laid)) {
+      setDatesWithAllBricksLaid((prev) => new Set([...prev, todayString()]))
+    }
     api.getStreak().then((r) => setStreak(r.streak_days))
   }
 
@@ -129,7 +147,7 @@ export function Dashboard() {
           />
         </div>
         <div className="min-w-0 shrink-0 lg:pl-2">
-          <Calendar datesWithBricks={datesWithBricks} />
+          <Calendar datesWithBricks={datesWithAllBricksLaid} />
         </div>
       </div>
     </div>

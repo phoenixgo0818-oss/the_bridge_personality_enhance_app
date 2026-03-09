@@ -1,9 +1,9 @@
 /**
- * Calendar for current month. Days with at least one brick are highlighted;
- * days with no brick are subtle. Glass styling to match landing theme.
+ * Calendar for current month. Days where all bricks were laid are highlighted;
+ * days with no bricks or with bricks not all laid are bland (subtle). Glass styling to match landing theme.
  */
 type Props = {
-  /** Set of dates (YYYY-MM-DD) that have at least one brick */
+  /** Set of dates (YYYY-MM-DD) where all bricks for that day were laid */
   datesWithBricks: Set<string>
 }
 
