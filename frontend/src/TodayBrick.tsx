@@ -66,7 +66,7 @@ export function TodayBrick({ bricks, onCreated, onLaid }: Props) {
                   type="button"
                   onClick={() => handleMarkLaid(b.id)}
                   disabled={layingId !== null}
-                  className="mt-3 rounded-xl bg-indigo-500 px-4 py-2 text-sm text-white hover:bg-indigo-600 disabled:opacity-50"
+                className="mt-3 rounded-xl bg-indigo-500 px-4 py-2 text-sm text-white hover:bg-indigo-600 disabled:opacity-50"
                 >
                   {layingId === b.id ? '…' : 'Mark as laid'}
                 </button>
